@@ -13,6 +13,8 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v4
 
+      - run: corepack enable
+
       - name: Compile
         run: yarn && yarn build
 
@@ -25,6 +27,8 @@ jobs:
 
       - name: Set up node
         uses: actions/setup-node@v4
+
+      - run: corepack enable
 
       - name: Compile
         run: yarn && yarn test    
