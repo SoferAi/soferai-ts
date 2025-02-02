@@ -1,0 +1,65 @@
+# yamllint disable rule:line-length
+"on":
+    push:
+      branches:
+        - main
+  
+permissions:
+    contents: write
+    pull-requests: write
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-24.04
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      major: ${{ steps.release.outputs.major }}
+      minor: ${{ steps.release.outputs.minor }}
+      patch: ${{ steps.release.outputs.patch }}
+
+    steps:
+    - name: Generate a token
+      id: generate-token
+      uses: actions/create-github-app-token@v1
+      with:
+        app-id: ${{ secrets.SOFERAI_BOT_CLIENT_ID }}
+        private-key: ${{ secrets.SOFERAI_BOT_PRIVATE_SIGNING_KEY }}
+
+    - uses: googleapis/release-please-action@v4
+      id: release
+      with:
+        token: ${{ steps.generate-token.outputs.token }}
+        release-type: npm
+        # Setting target-branch allows us to track multiple release branches
+        # (should we need to maintain a 1.x or similar branch.)
+        target-branch: ${{ github.ref_name }}
+
+  npm-publish:
+    name: upload release to npm
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+
+      - run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build
+        run: yarn build
+
+      - name: Publish to npm
+        run: |
+          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
