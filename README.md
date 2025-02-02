@@ -11,9 +11,9 @@ npm install soferai
 ## Usage
 
 ```typescript
-import { SoferAi } from 'soferai';
+import { SoferAi } from "soferai";
 
 const soferai = new SoferAi({
-  apiKey: 'your-api-key',
+    apiKey: "your-api-key",
 });
 ```
