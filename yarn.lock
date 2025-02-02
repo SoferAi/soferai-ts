@@ -875,10 +875,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:17.0.33":
-  version: 17.0.33
-  resolution: "@types/node@npm:17.0.33"
-  checksum: 10c0/39df1b3f5d5bd8e54db632dc8f1feb1224d1a9942eb9a1873e031241a30fc458fac9ce38489778cb43242e34cbab27558c2b6f8e9e4d5ef453abf59c27ec151d
+"@types/node@npm:17.0.45":
+  version: 17.0.45
+  resolution: "@types/node@npm:17.0.45"
+  checksum: 10c0/0db377133d709b33a47892581a21a41cd7958f22723a3cc6c71d55ac018121382de42fbfc7970d5ae3e7819dbe5f40e1c6a5174aedf7e7964e9cb8fa72b580b0
   languageName: node
   linkType: hard
 
@@ -3624,7 +3624,7 @@ __metadata:
   resolution: "soferai@workspace:."
   dependencies:
     "@types/jest": "npm:29.5.5"
-    "@types/node": "npm:17.0.33"
+    "@types/node": "npm:17.0.45"
     "@types/node-fetch": "npm:2.6.9"
     "@types/qs": "npm:6.9.8"
     "@types/url-join": "npm:4.0.1"
