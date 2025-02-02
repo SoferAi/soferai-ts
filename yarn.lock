@@ -903,10 +903,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/url-join@npm:4.0.1":
-  version: 4.0.1
-  resolution: "@types/url-join@npm:4.0.1"
-  checksum: 10c0/e8d85c05d511a12c307d5b27f3c8b93636af28bc6f4f317e3278ab2787ac400ba872d074e52450433ded11ab96552423c53719269835544c93694bf6d46dd661
+"@types/url-join@npm:4.0.3":
+  version: 4.0.3
+  resolution: "@types/url-join@npm:4.0.3"
+  checksum: 10c0/7f0f86693070355ce731ec3861d47c03eaae09ab0ea1a72dde6b38a2a17089941acc59bac9ea2472376b6f96e189478da0a7ed29e2d282d1543382e92408d6ca
   languageName: node
   linkType: hard
 
@@ -3627,7 +3627,7 @@ __metadata:
     "@types/node": "npm:17.0.45"
     "@types/node-fetch": "npm:2.6.9"
     "@types/qs": "npm:6.9.8"
-    "@types/url-join": "npm:4.0.1"
+    "@types/url-join": "npm:4.0.3"
     form-data: "npm:^4.0.0"
     formdata-node: "npm:^6.0.3"
     jest: "npm:29.7.0"
