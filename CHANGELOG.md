@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/SoferAi/soferai-ts/compare/v0.1.0...v0.1.1) (2025-02-02)
+
+
+### Bug Fixes
+
+* actually generate typescript ([#11](https://github.com/SoferAi/soferai-ts/issues/11)) ([5600379](https://github.com/SoferAi/soferai-ts/commit/56003796145ac90415986455eee271d166804dcd))
+
 ## 0.1.0 (2025-02-02)
 
 ### Features
