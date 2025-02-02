@@ -32,7 +32,7 @@ jobs:
       id: release
       with:
         token: ${{ steps.generate-token.outputs.token }}
-        release-type: npm
+        release-type: node
         # Setting target-branch allows us to track multiple release branches
         # (should we need to maintain a 1.x or similar branch.)
         target-branch: ${{ github.ref_name }}
