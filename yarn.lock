@@ -3291,12 +3291,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.7.1":
-  version: 2.7.1
-  resolution: "prettier@npm:2.7.1"
+"prettier@npm:3.4.2":
+  version: 3.4.2
+  resolution: "prettier@npm:3.4.2"
   bin:
-    prettier: bin-prettier.js
-  checksum: 10c0/359d2b7ecf36bd52924a48331cae506d335f18637fde6c686212f952b9ce678ce9f554a80571049b36ec2897a8a6c40094b776dea371cc5c04c481cf5b78504b
+    prettier: bin/prettier.cjs
+  checksum: 10c0/99e076a26ed0aba4ebc043880d0f08bbb8c59a4c6641cdee6cdadf2205bdd87aa1d7823f50c3aea41e015e99878d37c58d7b5f0e663bba0ef047f94e36b96446
   languageName: node
   linkType: hard
 
@@ -3634,7 +3634,7 @@ __metadata:
     jest-environment-jsdom: "npm:29.7.0"
     js-base64: "npm:3.7.2"
     node-fetch: "npm:2.7.0"
-    prettier: "npm:2.7.1"
+    prettier: "npm:3.4.2"
     qs: "npm:6.11.2"
     ts-jest: "npm:29.1.1"
     typescript: "npm:4.6.4"
