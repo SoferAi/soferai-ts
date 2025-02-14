@@ -856,13 +856,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node-fetch@npm:2.6.9":
-  version: 2.6.9
-  resolution: "@types/node-fetch@npm:2.6.9"
+"@types/node-fetch@npm:2.6.12":
+  version: 2.6.12
+  resolution: "@types/node-fetch@npm:2.6.12"
   dependencies:
     "@types/node": "npm:*"
     form-data: "npm:^4.0.0"
-  checksum: 10c0/b15b6d518ea4dd4a21cf328e9df0a88b2e5b76f3455ddfeb9063a3b97087c50b15ab195a869dadbbeb09d08dcc915557fb6a4f72b4fe79ee42e215fce3d9b0db
+  checksum: 10c0/7693acad5499b7df2d1727d46cff092a63896dc04645f36b973dd6dd754a59a7faba76fcb777bdaa35d80625c6a9dd7257cca9c401a4bab03b04480cda7fd1af
   languageName: node
   linkType: hard
 
@@ -3625,7 +3625,7 @@ __metadata:
   dependencies:
     "@types/jest": "npm:29.5.5"
     "@types/node": "npm:17.0.45"
-    "@types/node-fetch": "npm:2.6.9"
+    "@types/node-fetch": "npm:2.6.12"
     "@types/qs": "npm:6.9.8"
     "@types/url-join": "npm:4.0.3"
     form-data: "npm:^4.0.0"
