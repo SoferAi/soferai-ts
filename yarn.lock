@@ -875,10 +875,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:17.0.45":
-  version: 17.0.45
-  resolution: "@types/node@npm:17.0.45"
-  checksum: 10c0/0db377133d709b33a47892581a21a41cd7958f22723a3cc6c71d55ac018121382de42fbfc7970d5ae3e7819dbe5f40e1c6a5174aedf7e7964e9cb8fa72b580b0
+"@types/node@npm:22.13.4":
+  version: 22.13.4
+  resolution: "@types/node@npm:22.13.4"
+  dependencies:
+    undici-types: "npm:~6.20.0"
+  checksum: 10c0/3a234fa7766a3efc382cf81f66f474c26cdab2f54f43f757634c81c0444eb2160c2dabbde9741e4983078a318a88515b65416b5f1ab5478548579d7b3ead1d95
   languageName: node
   linkType: hard
 
@@ -3624,7 +3626,7 @@ __metadata:
   resolution: "soferai@workspace:."
   dependencies:
     "@types/jest": "npm:29.5.5"
-    "@types/node": "npm:17.0.45"
+    "@types/node": "npm:22.13.4"
     "@types/node-fetch": "npm:2.6.9"
     "@types/qs": "npm:6.9.8"
     "@types/url-join": "npm:4.0.3"
