@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/SoferAi/soferai-ts/compare/v0.1.1...v0.1.2) (2025-03-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency qs to v6.14.0 ([#18](https://github.com/SoferAi/soferai-ts/issues/18)) ([596656f](https://github.com/SoferAi/soferai-ts/commit/596656f5275bec25136242a60b1f7bf3c89e12c4))
+
 ## [0.1.1](https://github.com/SoferAi/soferai-ts/compare/v0.1.0...v0.1.1) (2025-02-02)
 
 
