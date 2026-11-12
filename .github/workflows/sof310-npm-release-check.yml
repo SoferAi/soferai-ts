@@ -1,0 +1,72 @@
+name: SOF-310 npm release access and recovery artifact
+"on":
+  push:
+    branches: [codex/sof-310-npm-publish-diagnostic]
+permissions:
+  contents: read
+jobs:
+  verify-release:
+    runs-on: ubuntu-24.04
+    if: github.repository == 'SoferAi/soferai-ts' && github.ref == 'refs/heads/codex/sof-310-npm-publish-diagnostic'
+    steps:
+      - name: Check configured npm publisher access without exposing credentials
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          node <<'JS'
+          (async()=>{
+            const token=process.env.NPM_TOKEN || "";
+            const report={token_configured:!!token,published:false};
+            if(token){
+              const headers={Authorization:"Bearer "+token,Accept:"application/json"};
+              const identity=await fetch("https://registry.npmjs.org/-/whoami",{headers});
+              report.identity_http=identity.status;
+              if(identity.ok){
+                const user=(await identity.json()).username;
+                report.authenticated=true;
+                const access=await fetch("https://registry.npmjs.org/-/package/soferai/collaborators?format=cli",{headers});
+                report.package_access_http=access.status;
+                if(access.ok) report.publisher_package_access=(await access.json())[user] || null;
+              }
+            }
+            console.log(JSON.stringify(report));
+            require("node:fs").writeFileSync("npm-release-access.json",JSON.stringify(report,null,2));
+          })().catch(e=>{console.error(e.name);process.exitCode=1;});
+          JS
+      - uses: actions/checkout@v6
+        with:
+          ref: v1.0.0
+          path: sdk
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - name: Build and test the exact release tag, then package it
+        run: |
+          cd sdk
+          corepack enable
+          corepack yarn install --immutable
+          corepack yarn build
+          corepack yarn test --runInBand
+          corepack yarn test:ocr
+          npm pack
+      - name: Verify a fresh installation of the built release package
+        run: |
+          mkdir -p "$RUNNER_TEMP/soferai-npm-release"
+          npm install --prefix "$RUNNER_TEMP/soferai-npm-release" --ignore-scripts --no-audit --no-fund "$GITHUB_WORKSPACE/sdk/soferai-1.0.0.tgz"
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          source=Path('sdk/scripts/verify-ocr.cjs').read_text().replace('require("../dist")','require("soferai")')
+          Path(os.environ['RUNNER_TEMP'],'soferai-npm-release','verify-ocr.cjs').write_text(source)
+          PY
+          node "$RUNNER_TEMP/soferai-npm-release/verify-ocr.cjs"
+          node -e 'const p=require(process.env.RUNNER_TEMP+"/soferai-npm-release/node_modules/soferai/package.json");if(p.version!=="1.0.0")process.exit(1);console.log("Verified fresh-installed SDK",p.version)'
+          sha256sum sdk/soferai-1.0.0.tgz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: soferai-typescript-1.0.0-reviewed-release
+          path: |
+            sdk/soferai-1.0.0.tgz
+            npm-release-access.json
+          retention-days: 30
