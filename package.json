@@ -22,7 +22,7 @@
     "url-join": "4.0.1"
   },
   "devDependencies": {
-    "@types/jest": "29.5.5",
+    "@types/jest": "29.5.14",
     "@types/node": "22.10.5",
     "@types/node-fetch": "2.6.9",
     "@types/qs": "6.9.18",
