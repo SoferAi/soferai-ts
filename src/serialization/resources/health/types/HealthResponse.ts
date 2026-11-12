@@ -12,7 +12,7 @@ export const HealthResponse: core.serialization.ObjectSchema<serializers.HealthR
     });
 
 export declare namespace HealthResponse {
-    interface Raw {
+    export interface Raw {
         status: string;
     }
 }

@@ -4,51 +4,106 @@
 
 import * as environments from "./environments";
 import * as core from "./core";
+import { Balance } from "./api/resources/balance/client/Client";
+import { BatchTranscribe } from "./api/resources/batchTranscribe/client/Client";
+import { Categories } from "./api/resources/categories/client/Client";
+import { Documents } from "./api/resources/documents/client/Client";
+import { Folders } from "./api/resources/folders/client/Client";
 import { Health } from "./api/resources/health/client/Client";
 import { Link } from "./api/resources/link/client/Client";
+import { Maishiv } from "./api/resources/maishiv/client/Client";
+import { Ocr } from "./api/resources/ocr/client/Client";
+import { Timestamps } from "./api/resources/timestamps/client/Client";
 import { Transcribe } from "./api/resources/transcribe/client/Client";
-import { Usage } from "./api/resources/usage/client/Client";
+import { TranslationStyles } from "./api/resources/translationStyles/client/Client";
+import { Utils } from "./api/resources/utils/client/Client";
 
 export declare namespace SoferAIClient {
-    interface Options {
+    export interface Options {
         environment?: core.Supplier<environments.SoferAIEnvironment | string>;
+        /** Specify a custom URL to connect the client to. */
+        baseUrl?: core.Supplier<string>;
         apiKey?: core.Supplier<core.BearerToken | undefined>;
     }
 
-    interface RequestOptions {
+    export interface RequestOptions {
         /** The maximum time to wait for a response in seconds. */
         timeoutInSeconds?: number;
         /** The number of times to retry the request. Defaults to 2. */
         maxRetries?: number;
         /** A hook to abort the request. */
         abortSignal?: AbortSignal;
+        /** Additional headers to include in the request. */
+        headers?: Record<string, string>;
     }
 }
 
 export class SoferAIClient {
+    protected _balance: Balance | undefined;
+    protected _batchTranscribe: BatchTranscribe | undefined;
+    protected _categories: Categories | undefined;
+    protected _documents: Documents | undefined;
+    protected _folders: Folders | undefined;
+    protected _health: Health | undefined;
+    protected _link: Link | undefined;
+    protected _maishiv: Maishiv | undefined;
+    protected _ocr: Ocr | undefined;
+    protected _timestamps: Timestamps | undefined;
+    protected _transcribe: Transcribe | undefined;
+    protected _translationStyles: TranslationStyles | undefined;
+    protected _utils: Utils | undefined;
+
     constructor(protected readonly _options: SoferAIClient.Options = {}) {}
 
-    protected _health: Health | undefined;
+    public get balance(): Balance {
+        return (this._balance ??= new Balance(this._options));
+    }
+
+    public get batchTranscribe(): BatchTranscribe {
+        return (this._batchTranscribe ??= new BatchTranscribe(this._options));
+    }
+
+    public get categories(): Categories {
+        return (this._categories ??= new Categories(this._options));
+    }
+
+    public get documents(): Documents {
+        return (this._documents ??= new Documents(this._options));
+    }
+
+    public get folders(): Folders {
+        return (this._folders ??= new Folders(this._options));
+    }
 
     public get health(): Health {
         return (this._health ??= new Health(this._options));
     }
 
-    protected _link: Link | undefined;
-
     public get link(): Link {
         return (this._link ??= new Link(this._options));
     }
 
-    protected _transcribe: Transcribe | undefined;
+    public get maishiv(): Maishiv {
+        return (this._maishiv ??= new Maishiv(this._options));
+    }
+
+    public get ocr(): Ocr {
+        return (this._ocr ??= new Ocr(this._options));
+    }
+
+    public get timestamps(): Timestamps {
+        return (this._timestamps ??= new Timestamps(this._options));
+    }
 
     public get transcribe(): Transcribe {
         return (this._transcribe ??= new Transcribe(this._options));
     }
 
-    protected _usage: Usage | undefined;
+    public get translationStyles(): TranslationStyles {
+        return (this._translationStyles ??= new TranslationStyles(this._options));
+    }
 
-    public get usage(): Usage {
-        return (this._usage ??= new Usage(this._options));
+    public get utils(): Utils {
+        return (this._utils ??= new Utils(this._options));
     }
 }

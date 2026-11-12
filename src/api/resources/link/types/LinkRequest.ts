@@ -3,6 +3,6 @@
  */
 
 export interface LinkRequest {
-    /** URL to extract the download link from */
+    /** URL to extract a downloadable link from. This link must originate from a supported site. You can use the get supported sites endpoint to get a list of supported sites. */
     url: string;
 }

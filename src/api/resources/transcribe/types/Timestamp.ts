@@ -7,14 +7,12 @@ import * as SoferAI from "../../../index";
 export interface Timestamp {
     /** Word */
     word: string;
-    /** Punctuated word */
-    punctuatedWord?: string;
-    /** Language for the transcription that this timestamp belongs to */
-    languages?: SoferAI.Language[];
+    /** Specifies the format of Hebrew words in the transcription. Hebrew words are denoted as "he" for Hebrew letters or "en" for English transliteration. Non-Hebrew words are represented by null. */
+    hebrewWordFormat?: SoferAI.LettersLanguage[];
     /** Start time of the timestamp */
     start: number;
     /** End time of the timestamp */
     end: number;
-    /** Speaker (Pro feature) */
+    /** If speaker labeling was requested, indicates which speaker number spoke this word (Pro feature) */
     speaker?: string;
 }

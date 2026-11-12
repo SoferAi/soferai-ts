@@ -3,12 +3,14 @@
  */
 
 import * as errors from "../../../../errors/index";
+import * as core from "../../../../core";
 
 export class AuthenticationError extends errors.SoferAIError {
-    constructor() {
+    constructor(rawResponse?: core.RawResponse) {
         super({
             message: "AuthenticationError",
             statusCode: 401,
+            rawResponse: rawResponse,
         });
         Object.setPrototypeOf(this, AuthenticationError.prototype);
     }

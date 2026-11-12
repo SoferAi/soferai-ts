@@ -3,12 +3,14 @@
  */
 
 import * as errors from "../../../../errors/index";
+import * as core from "../../../../core";
 
 export class LinkNotFound extends errors.SoferAIError {
-    constructor() {
+    constructor(rawResponse?: core.RawResponse) {
         super({
             message: "LinkNotFound",
             statusCode: 404,
+            rawResponse: rawResponse,
         });
         Object.setPrototypeOf(this, LinkNotFound.prototype);
     }

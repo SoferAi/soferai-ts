@@ -5,10 +5,48 @@
 import * as SoferAI from "../../../index";
 
 export interface TranscriptionRequest {
-    /** URL to the audio file */
+    /**
+     * A direct audio download URL or a page URL from an officially supported site.
+     * Supported site links are automatically resolved using the Link API's extraction logic,
+     * and the original URL is saved on the transcription. See [Get supported sites](/api-reference/link/get-supported-sites)
+     * for the current list. If extraction fails, the request returns the corresponding Link API error.
+     * Direct download URLs continue to work without extraction. Other streaming or preview links are not supported.
+     * Automatic extraction is available only for single transcriptions, not batch requests.
+     * Either audio_url or audio_file must be provided, but not both.
+     */
     audioUrl?: string;
-    /** ID of the audio file (for audio in the S3 bucket, this is the postgres storage metadata id) */
-    audioId?: string;
+    /**
+     * Base64 encoded audio file content. Either audio_url or audio_file must be provided, but not both.
+     *
+     * ## Base64 Encoding Example
+     *
+     * **Python:**
+     * ```python
+     * import base64
+     * from soferai import SoferAI
+     *
+     * # Initialize client
+     * client = SoferAI(api_key="your_api_key_here")
+     *
+     * # Read and encode audio file
+     * with open("audio.mp3", "rb") as f:
+     *     base64_audio = base64.b64encode(f.read()).decode('utf-8')
+     *
+     * # Create transcription request
+     * response = client.transcribe.create_transcription(
+     *     audio_file=base64_audio,
+     *     info={
+     *         "model": "v1",
+     *         "primary_language": "en",
+     *         "hebrew_word_format": ["he"],
+     *         "title": "My Shiur Transcription"
+     *     }
+     * )
+     *
+     * print(f"Transcription ID: {response}")
+     * ```
+     */
+    audioFile?: string;
     /** Transcription parameters */
-    info: SoferAI.TranscriptionInfo;
+    info: SoferAI.TranscriptionRequestInfo;
 }

@@ -5,10 +5,11 @@
 import * as serializers from "../../../index";
 import * as SoferAI from "../../../../api/index";
 import * as core from "../../../../core";
+import { DocumentId } from "../../documentTypes/types/DocumentId";
 
 export const TranscriptionId: core.serialization.Schema<serializers.TranscriptionId.Raw, SoferAI.TranscriptionId> =
-    core.serialization.string();
+    DocumentId;
 
 export declare namespace TranscriptionId {
-    type Raw = string;
+    export type Raw = DocumentId.Raw;
 }

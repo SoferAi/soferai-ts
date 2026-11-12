@@ -3,12 +3,14 @@
  */
 
 import * as errors from "../../../../errors/index";
+import * as core from "../../../../core";
 
 export class LinkNotSupported extends errors.SoferAIError {
-    constructor() {
+    constructor(rawResponse?: core.RawResponse) {
         super({
             message: "LinkNotSupported",
             statusCode: 400,
+            rawResponse: rawResponse,
         });
         Object.setPrototypeOf(this, LinkNotSupported.prototype);
     }

@@ -15,7 +15,7 @@ export const LinkResponse: core.serialization.ObjectSchema<serializers.LinkRespo
     });
 
 export declare namespace LinkResponse {
-    interface Raw {
+    export interface Raw {
         title: string;
         download_url: string;
         file_format: string;

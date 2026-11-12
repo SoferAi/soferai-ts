@@ -6,21 +6,33 @@ import * as SoferAI from "../../../index";
 
 export interface TranscriptionInfo {
     /** ID of the transcription */
-    id?: SoferAI.TranscriptionId;
-    /** ID of the user */
-    userId?: string;
+    id: SoferAI.TranscriptionId;
+    /** Caller-defined per-item identifier for batch items. This is `null` for single transcriptions and for batch items submitted without a `client_item_id`. */
+    clientItemId?: string;
     /** Title of the transcription */
-    title?: string;
-    /** Date of the transcription */
-    createdAt?: Date;
-    /** Primary language of the audio content */
+    title: string;
+    /** Containing document folder, or null for root. */
+    folderId?: string;
+    /** When the transcription was created */
+    createdAt: Date;
+    /** The primary language of the audio content. This is null when an upload has not yet been configured for transcription. */
     primaryLanguage?: SoferAI.Language;
-    /** Language setting for Hebrew words processing (only need to be specified if the primary language is English) */
-    langForHebrewWords?: SoferAI.Language[];
-    /** Expected number of speakers in the audio */
+    /**
+     * Indicates how Hebrew words are transcribed in the response when the primary language is English.
+     * - `hybrid` uses italicized English transliteration for short phrases and Hebrew letters for longer phrases.
+     * - Hebrew words are in Hebrew letters if "he" is specified.
+     * - Hebrew words are transliterated into English letters if "en" is specified.
+     * - If both "he" and "en" are specified, both versions are provided back-to-back for each Hebrew word.
+     * Transliterated Hebrew words are surrounded by <i> tags in the response text.
+     * This is null when no Hebrew-word format has been configured for the upload.
+     */
+    hebrewWordFormat?: SoferAI.LettersLanguage[];
+    /** Number of speakers in the audio. This can be `null` while auto-detection is pending or if no count was determined. */
     numSpeakers?: number;
-    /** Status of the transcription */
-    status?: SoferAI.Status;
-    /** Duration of the transcription */
+    /** Current status of the transcription */
+    status: SoferAI.Status;
+    /** Duration of the audio in seconds. If None, it means the duration was not calculated yet. */
     duration?: number;
+    /** Model used for the transcription. V1 is the latest and most accurate model, especially for audio with longer stretches of Hebrew. V0 is suitable for audio with fewer Hebrew words. */
+    model?: string;
 }

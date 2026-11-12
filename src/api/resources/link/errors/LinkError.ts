@@ -3,12 +3,14 @@
  */
 
 import * as errors from "../../../../errors/index";
+import * as core from "../../../../core";
 
 export class LinkError extends errors.SoferAIError {
-    constructor() {
+    constructor(rawResponse?: core.RawResponse) {
         super({
             message: "LinkError",
             statusCode: 500,
+            rawResponse: rawResponse,
         });
         Object.setPrototypeOf(this, LinkError.prototype);
     }

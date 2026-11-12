@@ -7,9 +7,9 @@ import * as SoferAI from "../../../../api/index";
 import * as core from "../../../../core";
 
 export const Language: core.serialization.Schema<serializers.Language.Raw, SoferAI.Language> = core.serialization.enum_(
-    ["en", "he"]
+    ["en", "he", "yi", "fr"],
 );
 
 export declare namespace Language {
-    type Raw = "en" | "he";
+    export type Raw = "en" | "he" | "yi" | "fr";
 }

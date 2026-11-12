@@ -10,18 +10,22 @@ import * as serializers from "../../../../serialization/index";
 import * as errors from "../../../../errors/index";
 
 export declare namespace Health {
-    interface Options {
+    export interface Options {
         environment?: core.Supplier<environments.SoferAIEnvironment | string>;
+        /** Specify a custom URL to connect the client to. */
+        baseUrl?: core.Supplier<string>;
         apiKey?: core.Supplier<core.BearerToken | undefined>;
     }
 
-    interface RequestOptions {
+    export interface RequestOptions {
         /** The maximum time to wait for a response in seconds. */
         timeoutInSeconds?: number;
         /** The number of times to retry the request. Defaults to 2. */
         maxRetries?: number;
         /** A hook to abort the request. */
         abortSignal?: AbortSignal;
+        /** Additional headers to include in the request. */
+        headers?: Record<string, string>;
     }
 }
 
@@ -34,11 +38,19 @@ export class Health {
      * @example
      *     await client.health.getHealth()
      */
-    public async getHealth(requestOptions?: Health.RequestOptions): Promise<SoferAI.HealthResponse> {
+    public getHealth(requestOptions?: Health.RequestOptions): core.HttpResponsePromise<SoferAI.HealthResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getHealth(requestOptions));
+    }
+
+    private async __getHealth(
+        requestOptions?: Health.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.HealthResponse>> {
         const _response = await core.fetcher({
             url: urlJoin(
-                (await core.Supplier.get(this._options.environment)) ?? environments.SoferAIEnvironment.Production,
-                "/v1/health/"
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                "/v1/health/",
             ),
             method: "GET",
             headers: {
@@ -46,6 +58,7 @@ export class Health {
                 "X-Fern-Language": "JavaScript",
                 "X-Fern-Runtime": core.RUNTIME.type,
                 "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
             },
             contentType: "application/json",
             requestType: "json",
@@ -54,18 +67,22 @@ export class Health {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return serializers.HealthResponse.parseOrThrow(_response.body, {
-                unrecognizedObjectKeys: "passthrough",
-                allowUnrecognizedUnionMembers: true,
-                allowUnrecognizedEnumValues: true,
-                breadcrumbsPrefix: ["response"],
-            });
+            return {
+                data: serializers.HealthResponse.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             throw new errors.SoferAIError({
                 statusCode: _response.error.statusCode,
                 body: _response.error.body,
+                rawResponse: _response.rawResponse,
             });
         }
 
@@ -74,12 +91,14 @@ export class Health {
                 throw new errors.SoferAIError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.SoferAITimeoutError();
+                throw new errors.SoferAITimeoutError("Timeout exceeded when calling GET /v1/health/.");
             case "unknown":
                 throw new errors.SoferAIError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

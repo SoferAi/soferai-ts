@@ -5,15 +5,9 @@
 import * as SoferAI from "../../../index";
 
 export interface Transcription {
-    /**
-     * Transcription text. if the `primary_language` was English and only one `lang_for_hebrew_words` was specified,
-     * this is just the English text with whatever language for the words you specified.
-     * If you set multiple `lang_for_hebrew_words`,
-     * this is the text with Hebrew words, with the English text in <i>Italics</i> markup.
-     * If primary language is Hebrew, this is just the Hebrew text.
-     */
+    /** This field contains the transcription text. For English-primary audio, the default `hybrid` format uses italicized English transliteration for short Hebrew phrases and Hebrew letters for longer phrases. With only `en` or `he`, Hebrew words use that format. If both `en` and `he` are requested, Hebrew words appear in both formats with the English transliteration in <i>italics</i>. If the primary language is Hebrew, the text is in Hebrew. If the primary language is French, the text is in French with Hebrew, Yiddish, and Aramaic words in Hebrew letters. */
     text: string;
-    /** Timestamps for the transcription text */
+    /** Timestamps object for the transcription. See the `timestamps` object for more details. */
     timestamps?: SoferAI.Timestamp[];
     /** Additional information about the transcription */
     info: SoferAI.TranscriptionInfo;
