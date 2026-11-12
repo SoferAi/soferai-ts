@@ -10,18 +10,22 @@ import urlJoin from "url-join";
 import * as errors from "../../../../errors/index";
 
 export declare namespace Transcribe {
-    interface Options {
+    export interface Options {
         environment?: core.Supplier<environments.SoferAIEnvironment | string>;
+        /** Specify a custom URL to connect the client to. */
+        baseUrl?: core.Supplier<string>;
         apiKey?: core.Supplier<core.BearerToken | undefined>;
     }
 
-    interface RequestOptions {
+    export interface RequestOptions {
         /** The maximum time to wait for a response in seconds. */
         timeoutInSeconds?: number;
         /** The number of times to retry the request. Defaults to 2. */
         maxRetries?: number;
         /** A hook to abort the request. */
         abortSignal?: AbortSignal;
+        /** Additional headers to include in the request. */
+        headers?: Record<string, string>;
     }
 }
 
@@ -36,32 +40,31 @@ export class Transcribe {
      *
      * @throws {@link SoferAI.AuthenticationError}
      * @throws {@link SoferAI.RateLimitError}
+     * @throws {@link SoferAI.LinkNotFound}
+     * @throws {@link SoferAI.LinkError}
      *
      * @example
      *     await client.transcribe.createTranscription({
-     *         audioUrl: undefined,
-     *         audioId: undefined,
-     *         info: {
-     *             id: undefined,
-     *             userId: undefined,
-     *             title: undefined,
-     *             createdAt: undefined,
-     *             primaryLanguage: undefined,
-     *             langForHebrewWords: undefined,
-     *             numSpeakers: undefined,
-     *             status: undefined,
-     *             duration: undefined
-     *         }
+     *         info: {}
      *     })
      */
-    public async createTranscription(
+    public createTranscription(
         request: SoferAI.TranscriptionRequest,
-        requestOptions?: Transcribe.RequestOptions
-    ): Promise<SoferAI.TranscriptionId> {
+        requestOptions?: Transcribe.RequestOptions,
+    ): core.HttpResponsePromise<SoferAI.TranscriptionId> {
+        return core.HttpResponsePromise.fromPromise(this.__createTranscription(request, requestOptions));
+    }
+
+    private async __createTranscription(
+        request: SoferAI.TranscriptionRequest,
+        requestOptions?: Transcribe.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.TranscriptionId>> {
         const _response = await core.fetcher({
             url: urlJoin(
-                (await core.Supplier.get(this._options.environment)) ?? environments.SoferAIEnvironment.Production,
-                "/v1/transcriptions/"
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                "/v1/transcriptions/",
             ),
             method: "POST",
             headers: {
@@ -69,6 +72,7 @@ export class Transcribe {
                 "X-Fern-Language": "JavaScript",
                 "X-Fern-Runtime": core.RUNTIME.type,
                 "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
             },
             contentType: "application/json",
             requestType: "json",
@@ -78,24 +82,32 @@ export class Transcribe {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return serializers.TranscriptionId.parseOrThrow(_response.body, {
-                unrecognizedObjectKeys: "passthrough",
-                allowUnrecognizedUnionMembers: true,
-                allowUnrecognizedEnumValues: true,
-                breadcrumbsPrefix: ["response"],
-            });
+            return {
+                data: serializers.TranscriptionId.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 401:
-                    throw new SoferAI.AuthenticationError();
+                    throw new SoferAI.AuthenticationError(_response.rawResponse);
                 case 429:
-                    throw new SoferAI.RateLimitError();
+                    throw new SoferAI.RateLimitError(_response.rawResponse);
+                case 404:
+                    throw new SoferAI.LinkNotFound(_response.rawResponse);
+                case 500:
+                    throw new SoferAI.LinkError(_response.rawResponse);
                 default:
                     throw new errors.SoferAIError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -105,12 +117,14 @@ export class Transcribe {
                 throw new errors.SoferAIError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.SoferAITimeoutError();
+                throw new errors.SoferAITimeoutError("Timeout exceeded when calling POST /v1/transcriptions/.");
             case "unknown":
                 throw new errors.SoferAIError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -118,7 +132,7 @@ export class Transcribe {
     /**
      * Get transcription status
      *
-     * @param {string} transcriptionId - ID of the transcription
+     * @param {string} transcriptionId - ID of the transcription. Use the ID returned from the Create Transcription endpoint.
      * @param {Transcribe.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link SoferAI.TranscriptionNotFound}
@@ -128,14 +142,23 @@ export class Transcribe {
      * @example
      *     await client.transcribe.getTranscriptionStatus("d5e9c84f-c2b2-4bf4-b4b0-7ffd7a9ffc32")
      */
-    public async getTranscriptionStatus(
+    public getTranscriptionStatus(
         transcriptionId: string,
-        requestOptions?: Transcribe.RequestOptions
-    ): Promise<SoferAI.TranscriptionInfo> {
+        requestOptions?: Transcribe.RequestOptions,
+    ): core.HttpResponsePromise<SoferAI.TranscriptionInfo> {
+        return core.HttpResponsePromise.fromPromise(this.__getTranscriptionStatus(transcriptionId, requestOptions));
+    }
+
+    private async __getTranscriptionStatus(
+        transcriptionId: string,
+        requestOptions?: Transcribe.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.TranscriptionInfo>> {
         const _response = await core.fetcher({
             url: urlJoin(
-                (await core.Supplier.get(this._options.environment)) ?? environments.SoferAIEnvironment.Production,
-                `/v1/transcriptions/${encodeURIComponent(transcriptionId)}/status`
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                `/v1/transcriptions/${encodeURIComponent(transcriptionId)}/status`,
             ),
             method: "GET",
             headers: {
@@ -143,6 +166,7 @@ export class Transcribe {
                 "X-Fern-Language": "JavaScript",
                 "X-Fern-Runtime": core.RUNTIME.type,
                 "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
             },
             contentType: "application/json",
             requestType: "json",
@@ -151,26 +175,30 @@ export class Transcribe {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return serializers.TranscriptionInfo.parseOrThrow(_response.body, {
-                unrecognizedObjectKeys: "passthrough",
-                allowUnrecognizedUnionMembers: true,
-                allowUnrecognizedEnumValues: true,
-                breadcrumbsPrefix: ["response"],
-            });
+            return {
+                data: serializers.TranscriptionInfo.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new SoferAI.TranscriptionNotFound();
+                    throw new SoferAI.TranscriptionNotFound(_response.rawResponse);
                 case 401:
-                    throw new SoferAI.AuthenticationError();
+                    throw new SoferAI.AuthenticationError(_response.rawResponse);
                 case 429:
-                    throw new SoferAI.RateLimitError();
+                    throw new SoferAI.RateLimitError(_response.rawResponse);
                 default:
                     throw new errors.SoferAIError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -180,12 +208,16 @@ export class Transcribe {
                 throw new errors.SoferAIError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.SoferAITimeoutError();
+                throw new errors.SoferAITimeoutError(
+                    "Timeout exceeded when calling GET /v1/transcriptions/{transcription_id}/status.",
+                );
             case "unknown":
                 throw new errors.SoferAIError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }
@@ -193,7 +225,8 @@ export class Transcribe {
     /**
      * Get transcription
      *
-     * @param {string} transcriptionId - ID of the transcription
+     * @param {string} transcriptionId - ID of the transcription. Use the ID returned from the Create Transcription endpoint.
+     * @param {SoferAI.GetTranscriptionRequest} request
      * @param {Transcribe.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link SoferAI.TranscriptionNotFound}
@@ -203,14 +236,31 @@ export class Transcribe {
      * @example
      *     await client.transcribe.getTranscription("d5e9c84f-c2b2-4bf4-b4b0-7ffd7a9ffc32")
      */
-    public async getTranscription(
+    public getTranscription(
         transcriptionId: string,
-        requestOptions?: Transcribe.RequestOptions
-    ): Promise<SoferAI.Transcription> {
+        request: SoferAI.GetTranscriptionRequest = {},
+        requestOptions?: Transcribe.RequestOptions,
+    ): core.HttpResponsePromise<SoferAI.Transcription> {
+        return core.HttpResponsePromise.fromPromise(this.__getTranscription(transcriptionId, request, requestOptions));
+    }
+
+    private async __getTranscription(
+        transcriptionId: string,
+        request: SoferAI.GetTranscriptionRequest = {},
+        requestOptions?: Transcribe.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.Transcription>> {
+        const { filterHebrewWordFormat } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        if (filterHebrewWordFormat != null) {
+            _queryParams["filter_hebrew_word_format"] = filterHebrewWordFormat;
+        }
+
         const _response = await core.fetcher({
             url: urlJoin(
-                (await core.Supplier.get(this._options.environment)) ?? environments.SoferAIEnvironment.Production,
-                `/v1/transcriptions/${encodeURIComponent(transcriptionId)}`
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                `/v1/transcriptions/${encodeURIComponent(transcriptionId)}`,
             ),
             method: "GET",
             headers: {
@@ -218,34 +268,40 @@ export class Transcribe {
                 "X-Fern-Language": "JavaScript",
                 "X-Fern-Runtime": core.RUNTIME.type,
                 "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
             },
             contentType: "application/json",
+            queryParameters: _queryParams,
             requestType: "json",
             timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
             maxRetries: requestOptions?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return serializers.Transcription.parseOrThrow(_response.body, {
-                unrecognizedObjectKeys: "passthrough",
-                allowUnrecognizedUnionMembers: true,
-                allowUnrecognizedEnumValues: true,
-                breadcrumbsPrefix: ["response"],
-            });
+            return {
+                data: serializers.Transcription.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 404:
-                    throw new SoferAI.TranscriptionNotFound();
+                    throw new SoferAI.TranscriptionNotFound(_response.rawResponse);
                 case 401:
-                    throw new SoferAI.AuthenticationError();
+                    throw new SoferAI.AuthenticationError(_response.rawResponse);
                 case 429:
-                    throw new SoferAI.RateLimitError();
+                    throw new SoferAI.RateLimitError(_response.rawResponse);
                 default:
                     throw new errors.SoferAIError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -255,12 +311,101 @@ export class Transcribe {
                 throw new errors.SoferAIError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.SoferAITimeoutError();
+                throw new errors.SoferAITimeoutError(
+                    "Timeout exceeded when calling GET /v1/transcriptions/{transcription_id}.",
+                );
             case "unknown":
                 throw new errors.SoferAIError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Get all transcriptions for the authenticated user
+     *
+     * @param {Transcribe.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link SoferAI.AuthenticationError}
+     * @throws {@link SoferAI.RateLimitError}
+     *
+     * @example
+     *     await client.transcribe.listTranscriptions()
+     */
+    public listTranscriptions(
+        requestOptions?: Transcribe.RequestOptions,
+    ): core.HttpResponsePromise<SoferAI.TranscriptionSummary[]> {
+        return core.HttpResponsePromise.fromPromise(this.__listTranscriptions(requestOptions));
+    }
+
+    private async __listTranscriptions(
+        requestOptions?: Transcribe.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.TranscriptionSummary[]>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                "/v1/transcriptions/",
+            ),
+            method: "GET",
+            headers: {
+                Authorization: await this._getAuthorizationHeader(),
+                "X-Fern-Language": "JavaScript",
+                "X-Fern-Runtime": core.RUNTIME.type,
+                "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
+            },
+            contentType: "application/json",
+            requestType: "json",
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return {
+                data: serializers.transcribe.listTranscriptions.Response.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 401:
+                    throw new SoferAI.AuthenticationError(_response.rawResponse);
+                case 429:
+                    throw new SoferAI.RateLimitError(_response.rawResponse);
+                default:
+                    throw new errors.SoferAIError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.SoferAIError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.SoferAITimeoutError("Timeout exceeded when calling GET /v1/transcriptions/.");
+            case "unknown":
+                throw new errors.SoferAIError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

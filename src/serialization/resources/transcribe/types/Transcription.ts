@@ -16,7 +16,7 @@ export const Transcription: core.serialization.ObjectSchema<serializers.Transcri
     });
 
 export declare namespace Transcription {
-    interface Raw {
+    export interface Raw {
         text: string;
         timestamps?: Timestamp.Raw[] | null;
         info: TranscriptionInfo.Raw;

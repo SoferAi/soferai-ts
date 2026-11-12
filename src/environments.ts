@@ -4,11 +4,6 @@
 
 export const SoferAIEnvironment = {
     Production: "https://api.sofer.ai",
-    Staging: "https://api-staging.sofer.ai",
-    Development: "http://localhost:8001",
 } as const;
 
-export type SoferAIEnvironment =
-    | typeof SoferAIEnvironment.Production
-    | typeof SoferAIEnvironment.Staging
-    | typeof SoferAIEnvironment.Development;
+export type SoferAIEnvironment = typeof SoferAIEnvironment.Production;

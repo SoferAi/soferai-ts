@@ -5,21 +5,21 @@
 import * as serializers from "../../../index";
 import * as SoferAI from "../../../../api/index";
 import * as core from "../../../../core";
-import { TranscriptionInfo } from "./TranscriptionInfo";
+import { TranscriptionRequestInfo } from "./TranscriptionRequestInfo";
 
 export const TranscriptionRequest: core.serialization.ObjectSchema<
     serializers.TranscriptionRequest.Raw,
     SoferAI.TranscriptionRequest
 > = core.serialization.object({
     audioUrl: core.serialization.property("audio_url", core.serialization.string().optional()),
-    audioId: core.serialization.property("audio_id", core.serialization.string().optional()),
-    info: TranscriptionInfo,
+    audioFile: core.serialization.property("audio_file", core.serialization.string().optional()),
+    info: TranscriptionRequestInfo,
 });
 
 export declare namespace TranscriptionRequest {
-    interface Raw {
+    export interface Raw {
         audio_url?: string | null;
-        audio_id?: string | null;
-        info: TranscriptionInfo.Raw;
+        audio_file?: string | null;
+        info: TranscriptionRequestInfo.Raw;
     }
 }

@@ -5,23 +5,24 @@
 import * as serializers from "../../../index";
 import * as SoferAI from "../../../../api/index";
 import * as core from "../../../../core";
-import { Language } from "./Language";
+import { LettersLanguage } from "./LettersLanguage";
 
 export const Timestamp: core.serialization.ObjectSchema<serializers.Timestamp.Raw, SoferAI.Timestamp> =
     core.serialization.object({
         word: core.serialization.string(),
-        punctuatedWord: core.serialization.property("punctuated_word", core.serialization.string().optional()),
-        languages: core.serialization.list(Language).optional(),
+        hebrewWordFormat: core.serialization.property(
+            "hebrew_word_format",
+            core.serialization.list(LettersLanguage).optional(),
+        ),
         start: core.serialization.number(),
         end: core.serialization.number(),
         speaker: core.serialization.string().optional(),
     });
 
 export declare namespace Timestamp {
-    interface Raw {
+    export interface Raw {
         word: string;
-        punctuated_word?: string | null;
-        languages?: Language.Raw[] | null;
+        hebrew_word_format?: LettersLanguage.Raw[] | null;
         start: number;
         end: number;
         speaker?: string | null;

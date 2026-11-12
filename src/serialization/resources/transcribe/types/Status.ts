@@ -13,8 +13,18 @@ export const Status: core.serialization.Schema<serializers.Status.Raw, SoferAI.S
     "COMPLETED",
     "CANCELLED",
     "FAILED",
+    "UPLOADED",
+    "INSUFFICIENT_FUNDS",
 ]);
 
 export declare namespace Status {
-    type Raw = "RECEIVED" | "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "FAILED";
+    export type Raw =
+        | "RECEIVED"
+        | "PENDING"
+        | "PROCESSING"
+        | "COMPLETED"
+        | "CANCELLED"
+        | "FAILED"
+        | "UPLOADED"
+        | "INSUFFICIENT_FUNDS";
 }

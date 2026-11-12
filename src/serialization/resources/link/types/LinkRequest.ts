@@ -12,7 +12,7 @@ export const LinkRequest: core.serialization.ObjectSchema<serializers.LinkReques
     });
 
 export declare namespace LinkRequest {
-    interface Raw {
+    export interface Raw {
         url: string;
     }
 }

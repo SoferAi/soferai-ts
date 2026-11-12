@@ -16,7 +16,7 @@ jobs:
             - run: corepack enable
 
             - name: Compile
-              run: yarn && yarn build
+              run: yarn && yarn build && yarn test:ocr
 
     test:
         runs-on: ubuntu-24.04

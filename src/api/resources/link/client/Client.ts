@@ -10,18 +10,22 @@ import urlJoin from "url-join";
 import * as errors from "../../../../errors/index";
 
 export declare namespace Link {
-    interface Options {
+    export interface Options {
         environment?: core.Supplier<environments.SoferAIEnvironment | string>;
+        /** Specify a custom URL to connect the client to. */
+        baseUrl?: core.Supplier<string>;
         apiKey?: core.Supplier<core.BearerToken | undefined>;
     }
 
-    interface RequestOptions {
+    export interface RequestOptions {
         /** The maximum time to wait for a response in seconds. */
         timeoutInSeconds?: number;
         /** The number of times to retry the request. Defaults to 2. */
         maxRetries?: number;
         /** A hook to abort the request. */
         abortSignal?: AbortSignal;
+        /** Additional headers to include in the request. */
+        headers?: Record<string, string>;
     }
 }
 
@@ -41,14 +45,23 @@ export class Link {
      *         url: "url"
      *     })
      */
-    public async extract(
+    public extract(
         request: SoferAI.LinkRequest,
-        requestOptions?: Link.RequestOptions
-    ): Promise<SoferAI.LinkResponse> {
+        requestOptions?: Link.RequestOptions,
+    ): core.HttpResponsePromise<SoferAI.LinkResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__extract(request, requestOptions));
+    }
+
+    private async __extract(
+        request: SoferAI.LinkRequest,
+        requestOptions?: Link.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.LinkResponse>> {
         const _response = await core.fetcher({
             url: urlJoin(
-                (await core.Supplier.get(this._options.environment)) ?? environments.SoferAIEnvironment.Production,
-                "/v1/link/extract"
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                "/v1/link/extract",
             ),
             method: "POST",
             headers: {
@@ -56,6 +69,7 @@ export class Link {
                 "X-Fern-Language": "JavaScript",
                 "X-Fern-Runtime": core.RUNTIME.type,
                 "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
             },
             contentType: "application/json",
             requestType: "json",
@@ -65,26 +79,30 @@ export class Link {
             abortSignal: requestOptions?.abortSignal,
         });
         if (_response.ok) {
-            return serializers.LinkResponse.parseOrThrow(_response.body, {
-                unrecognizedObjectKeys: "passthrough",
-                allowUnrecognizedUnionMembers: true,
-                allowUnrecognizedEnumValues: true,
-                breadcrumbsPrefix: ["response"],
-            });
+            return {
+                data: serializers.LinkResponse.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
                 case 400:
-                    throw new SoferAI.LinkNotSupported();
+                    throw new SoferAI.LinkNotSupported(_response.rawResponse);
                 case 404:
-                    throw new SoferAI.LinkNotFound();
+                    throw new SoferAI.LinkNotFound(_response.rawResponse);
                 case 500:
-                    throw new SoferAI.LinkError();
+                    throw new SoferAI.LinkError(_response.rawResponse);
                 default:
                     throw new errors.SoferAIError({
                         statusCode: _response.error.statusCode,
                         body: _response.error.body,
+                        rawResponse: _response.rawResponse,
                     });
             }
         }
@@ -94,12 +112,85 @@ export class Link {
                 throw new errors.SoferAIError({
                     statusCode: _response.error.statusCode,
                     body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.SoferAITimeoutError();
+                throw new errors.SoferAITimeoutError("Timeout exceeded when calling POST /v1/link/extract.");
             case "unknown":
                 throw new errors.SoferAIError({
                     message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {Link.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @example
+     *     await client.link.getSupportedSites()
+     */
+    public getSupportedSites(requestOptions?: Link.RequestOptions): core.HttpResponsePromise<SoferAI.Site[]> {
+        return core.HttpResponsePromise.fromPromise(this.__getSupportedSites(requestOptions));
+    }
+
+    private async __getSupportedSites(
+        requestOptions?: Link.RequestOptions,
+    ): Promise<core.WithRawResponse<SoferAI.Site[]>> {
+        const _response = await core.fetcher({
+            url: urlJoin(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.SoferAIEnvironment.Production,
+                "/v1/link/sites",
+            ),
+            method: "GET",
+            headers: {
+                Authorization: await this._getAuthorizationHeader(),
+                "X-Fern-Language": "JavaScript",
+                "X-Fern-Runtime": core.RUNTIME.type,
+                "X-Fern-Runtime-Version": core.RUNTIME.version,
+                ...requestOptions?.headers,
+            },
+            contentType: "application/json",
+            requestType: "json",
+            timeoutMs: requestOptions?.timeoutInSeconds != null ? requestOptions.timeoutInSeconds * 1000 : 60000,
+            maxRetries: requestOptions?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+        });
+        if (_response.ok) {
+            return {
+                data: serializers.link.getSupportedSites.Response.parseOrThrow(_response.body, {
+                    unrecognizedObjectKeys: "passthrough",
+                    allowUnrecognizedUnionMembers: true,
+                    allowUnrecognizedEnumValues: true,
+                    breadcrumbsPrefix: ["response"],
+                }),
+                rawResponse: _response.rawResponse,
+            };
+        }
+
+        if (_response.error.reason === "status-code") {
+            throw new errors.SoferAIError({
+                statusCode: _response.error.statusCode,
+                body: _response.error.body,
+                rawResponse: _response.rawResponse,
+            });
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.SoferAIError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.SoferAITimeoutError("Timeout exceeded when calling GET /v1/link/sites.");
+            case "unknown":
+                throw new errors.SoferAIError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
                 });
         }
     }

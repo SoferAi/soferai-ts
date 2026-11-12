@@ -3,12 +3,14 @@
  */
 
 import * as errors from "../../../../errors/index";
+import * as core from "../../../../core";
 
 export class RateLimitError extends errors.SoferAIError {
-    constructor() {
+    constructor(rawResponse?: core.RawResponse) {
         super({
             message: "RateLimitError",
             statusCode: 429,
+            rawResponse: rawResponse,
         });
         Object.setPrototypeOf(this, RateLimitError.prototype);
     }

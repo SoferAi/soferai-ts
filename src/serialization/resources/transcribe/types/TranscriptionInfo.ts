@@ -7,36 +7,41 @@ import * as SoferAI from "../../../../api/index";
 import * as core from "../../../../core";
 import { TranscriptionId } from "./TranscriptionId";
 import { Language } from "./Language";
+import { LettersLanguage } from "./LettersLanguage";
 import { Status } from "./Status";
 
 export const TranscriptionInfo: core.serialization.ObjectSchema<
     serializers.TranscriptionInfo.Raw,
     SoferAI.TranscriptionInfo
 > = core.serialization.object({
-    id: TranscriptionId.optional(),
-    userId: core.serialization.property("user_id", core.serialization.string().optional()),
-    title: core.serialization.string().optional(),
-    createdAt: core.serialization.property("created_at", core.serialization.date().optional()),
+    id: TranscriptionId,
+    clientItemId: core.serialization.property("client_item_id", core.serialization.string().optional()),
+    title: core.serialization.string(),
+    folderId: core.serialization.property("folder_id", core.serialization.string().optional()),
+    createdAt: core.serialization.property("created_at", core.serialization.date()),
     primaryLanguage: core.serialization.property("primary_language", Language.optional()),
-    langForHebrewWords: core.serialization.property(
-        "lang_for_hebrew_words",
-        core.serialization.list(Language).optional()
+    hebrewWordFormat: core.serialization.property(
+        "hebrew_word_format",
+        core.serialization.list(LettersLanguage).optional(),
     ),
     numSpeakers: core.serialization.property("num_speakers", core.serialization.number().optional()),
-    status: Status.optional(),
+    status: Status,
     duration: core.serialization.number().optional(),
+    model: core.serialization.string().optional(),
 });
 
 export declare namespace TranscriptionInfo {
-    interface Raw {
-        id?: TranscriptionId.Raw | null;
-        user_id?: string | null;
-        title?: string | null;
-        created_at?: string | null;
+    export interface Raw {
+        id: TranscriptionId.Raw;
+        client_item_id?: string | null;
+        title: string;
+        folder_id?: string | null;
+        created_at: string;
         primary_language?: Language.Raw | null;
-        lang_for_hebrew_words?: Language.Raw[] | null;
+        hebrew_word_format?: LettersLanguage.Raw[] | null;
         num_speakers?: number | null;
-        status?: Status.Raw | null;
+        status: Status.Raw;
         duration?: number | null;
+        model?: string | null;
     }
 }
