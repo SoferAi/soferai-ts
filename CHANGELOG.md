@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.0.0](https://github.com/SoferAi/soferai-ts/compare/v0.1.1...v1.0.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **api:** refresh the external API audience and remove the legacy Usage resource. Include public OCR document methods, all three modes, API provenance, and compiled request verification.
+
+### Features
+
+* **api:** refresh public API with all OCR modes ([99ccde7](https://github.com/SoferAi/soferai-ts/commit/99ccde700ccfcde639decb6c76598e410c7d7801))
+
+
+### Bug Fixes
+
+* **deps:** update dependency qs to v6.14.0 ([#18](https://github.com/SoferAi/soferai-ts/issues/18)) ([596656f](https://github.com/SoferAi/soferai-ts/commit/596656f5275bec25136242a60b1f7bf3c89e12c4))
+
 ## [0.1.1](https://github.com/SoferAi/soferai-ts/compare/v0.1.0...v0.1.1) (2025-02-02)
 
 
