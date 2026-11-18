@@ -2740,10 +2740,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-base64@npm:3.7.2":
-  version: 3.7.2
-  resolution: "js-base64@npm:3.7.2"
-  checksum: 10c0/d61dae292bc3aa2fa8df5c5cb684c4a582f03fc3e9ec7a05e940cfe207b434c1b17d84d75b10931554e2b562851b76237270e4231b5efb5b4354b24030b34e60
+"js-base64@npm:3.9.7":
+  version: 3.9.7
+  resolution: "js-base64@npm:3.9.7"
+  checksum: 10c0/5cf4989bf47fcbd7c5fe5c9053e0a860128aa6eee23c40e025f69e255b0afe59c6cedb6c79cdb48858a6d10b0c9e603a3b74b93cb16703496bae20ca1729aaab
   languageName: node
   linkType: hard
 
@@ -3726,7 +3726,7 @@ __metadata:
     formdata-node: "npm:^6.0.3"
     jest: "npm:29.7.0"
     jest-environment-jsdom: "npm:29.7.0"
-    js-base64: "npm:3.7.2"
+    js-base64: "npm:3.9.7"
     node-fetch: "npm:2.7.0"
     prettier: "npm:3.4.2"
     qs: "npm:6.14.0"
